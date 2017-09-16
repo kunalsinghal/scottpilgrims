@@ -35,6 +35,33 @@ class UserClass {
 				return this.create({username, password_hash});
 			});
 	}
+
+	static login_user ({username, password}) {
+		return this.
+			findOne({username})
+			.then(user => {
+				if (!user) {
+					throw {
+						message: 'username not found',
+						status: 404,
+					}
+				}
+				return new Promise(resolve => {
+					bcrypt.compare(password, user.password_hash, function(err, result) {
+						if (err) {
+							throw err;
+						}
+						if (!result) {
+							throw {
+								message: 'wrong password',
+								status: 500,
+							};
+						}
+						resolve(user);
+					});
+				});
+			})
+	}
 }
 
 schema.loadClass(UserClass);
